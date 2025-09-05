@@ -22,21 +22,32 @@ class AGenerator {
 	public:
 		AGenerator(const T& initial = 0) : m_initial(initial) {}
 		virtual void run() = 0;
-		void benchmark() {
-			auto start = std::chrono::high_resolution_clock::now();
-			run();
-			auto end = std::chrono::high_resolution_clock::now();
-			auto duration_ms  = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+		void benchmark(uint32_t iterations = 1) {
+			uint64_t total_ms = 0;
+			for (uint32_t i = 0; i < iterations; i++) {
+				m_tree = GameTree<T>();
 
-			std::cout << "Total states: " << m_tree.size() << '\n';
-			std::cout << "Time taken: " << duration_ms.count() << "ms\n";
-			std::cout << "\n";
+				std::cout << "Iteration " << (i + 1) << ":\n";
+				auto start = std::chrono::high_resolution_clock::now();
+
+				run();
+
+				auto end = std::chrono::high_resolution_clock::now();
+				auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+				total_ms += duration_ms.count();
+
+				//std::cout << "Total states: " << m_tree.size() << '\n';
+				//std::cout << "Time taken: " << duration_ms.count() << "ms\n";
+				//std::cout << "\n";
+			}
+			std::cout << "Average time over " << iterations << " iterations: " << (total_ms / iterations) << "ms\n\n";
+			std::cout << "----------------------------------------\n\n";
 		}
 
 	protected:
 		static constexpr uint32_t c_size = W * H;
 		GameTree<T> m_tree;
-		T m_initial;
+		const T m_initial;
 
 		T merge(const T& a, const T& b);
 		std::vector<T> split(const T& a);

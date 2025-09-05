@@ -9,12 +9,12 @@ int main() {
 	GeneratorMinimax<uint32_t, 5, 5> generator5;
 	GeneratorMinimax<uint64_t, 6, 6> generator6;
 
-	generator1.benchmark();
-	generator2.benchmark();
-	generator3.benchmark();
-	generator4.benchmark();
-	generator5.benchmark();
-	generator6.benchmark();
+	//generator1.benchmark(10);
+	//generator2.benchmark(10);
+	//generator3.benchmark(10);
+	//generator4.benchmark(10);
+	//generator5.benchmark(10);
+	generator6.benchmark(1);
 
 	return 0;
 }
