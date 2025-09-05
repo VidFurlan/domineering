@@ -4,7 +4,7 @@
 
 ### Checklist
 
-- [ ] Rules and Implementation
+- [x] Rules and Implementation
 - [ ] State Graph (Small Boards)
 - [ ] Visualization
 - [ ] Interactive Demo
@@ -17,14 +17,14 @@
 
 #### State compression
 
-- [ ] **Bitboards**
+- [x] **Bitboards**
 - [ ] **Zobrist Hashing**
 - [ ] **Precomputed Placements**
 - [ ] Symmetry Compression
 
 #### Search Algorithms
 
-- [ ] Minimax
+- [x] Minimax
 - [ ] MCTS - Monte Carlo Tree Search
 - [ ] Alpha-Beta Pruning
 - [ ] Negamax + Alpha-Beta
