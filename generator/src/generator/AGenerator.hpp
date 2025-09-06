@@ -36,6 +36,8 @@ class AGenerator {
 				auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 				total_ms += duration_ms.count();
 
+				if (i == 0) m_tree.saveToFile("gametree_" + std::to_string(W) + "x" + std::to_string(H) + ".txt");
+
 				//std::cout << "Total states: " << m_tree.size() << '\n';
 				//std::cout << "Time taken: " << duration_ms.count() << "ms\n";
 				//std::cout << "\n";

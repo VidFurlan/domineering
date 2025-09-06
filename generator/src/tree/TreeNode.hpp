@@ -9,7 +9,7 @@ class TreeNode {
 	public:
 		TreeNode(T state) : state(state) {}
 		T state;
-		int8_t color = -1;
+		int32_t color = -1;
 	
 		void addChild(uint32_t child) {
 			children.push_back(child);
