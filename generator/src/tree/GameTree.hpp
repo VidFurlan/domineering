@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fstream>
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
@@ -17,6 +18,8 @@ class GameTree {
 		TreeNode<T>& getNodeByState(const T& state); 
 		const int32_t findNode(const T& state) const;
 		const size_t size() const { return nodes.size(); }
+		const void clear() { nodes.clear(); nodeMap.clear(); }
+		const void saveToFile(const std::string& filename) const;
 
 	private:
 		std::vector<TreeNode<T>> nodes;
@@ -56,4 +59,24 @@ inline const int32_t GameTree<T>::findNode(const T& state) const {
 		return it->second;
 	}
 	return -1;
+}
+
+template <Bitboard T>
+inline const void GameTree<T>::saveToFile(const std::string& filename) const {
+	std::ofstream file(filename);
+	if (!file.is_open()) {
+		throw std::runtime_error("Failed to save GameTree to file " + filename); 
+	}
+
+	for (const auto& node : nodes) {
+		file << "State: " << node.state << "\n";
+		file << "Parent: " << node.parentIndex << "\n";
+		file << "Children: ";
+		for (const auto& child : node.childrenIndices) {
+			file << child << " ";
+		}
+		file << "\n\n";
+	}
+
+	file.close();
 }

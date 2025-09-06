@@ -25,7 +25,7 @@ class AGenerator {
 		void benchmark(uint32_t iterations = 1) {
 			uint64_t total_ms = 0;
 			for (uint32_t i = 0; i < iterations; i++) {
-				m_tree = GameTree<T>();
+				m_tree.clear();
 
 				std::cout << "Iteration " << (i + 1) << ":\n";
 				auto start = std::chrono::high_resolution_clock::now();

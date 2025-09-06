@@ -9,6 +9,7 @@ class TreeNode {
 	public:
 		TreeNode(T state) : state(state) {}
 		T state;
+		int8_t color = -1;
 	
 		void addChild(uint32_t child) {
 			children.push_back(child);
@@ -16,6 +17,10 @@ class TreeNode {
 
 		const std::vector<uint32_t>& getChildren() const {
 			return children;
+		}
+
+		void setColor(uint8_t c) {
+			color = c;
 		}
 
 	private:
