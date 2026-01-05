@@ -22,7 +22,7 @@ class AGenerator {
 	public:
 		AGenerator(const T& initial = 0) : m_initial(initial) {}
 		virtual void run() = 0;
-		void benchmark(uint32_t iterations = 1) {
+void benchmark(uint32_t iterations = 1) {
 			uint64_t total_ms = 0;
 			for (uint32_t i = 0; i < iterations; i++) {
 				m_tree.clear();
@@ -36,7 +36,7 @@ class AGenerator {
 				auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 				total_ms += duration_ms.count();
 
-				if (i == 0) m_tree.saveToFile("gametree_" + std::to_string(W) + "x" + std::to_string(H) + ".txt");
+				// if (i == 0) m_tree.saveToFile("gametree_" + std::to_string(W) + "x" + std::to_string(H) + ".txt");
 
 				//std::cout << "Total states: " << m_tree.size() << '\n';
 				//std::cout << "Time taken: " << duration_ms.count() << "ms\n";
@@ -44,6 +44,11 @@ class AGenerator {
 			}
 			std::cout << "Average time over " << iterations << " iterations: " << (total_ms / iterations) << "ms\n\n";
 			std::cout << "----------------------------------------\n\n";
+		}
+		void saveTree(const std::string& path, const std::string &format = "json") {
+			if (format == "edges") m_tree.saveToFileEdgeList(path);
+			else if (format == "json") m_tree.saveToFileJson(path);
+			else std::cerr << "Unknown save format: " << format << "\n";
 		}
 
 	protected:
