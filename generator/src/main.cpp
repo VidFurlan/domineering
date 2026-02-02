@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
     int h = get_int_arg(argc, argv, "--h", 5);
     int runs = get_int_arg(argc, argv, "--runs", 1);
 
-    std::string out = get_str_arg(argc, argv, "--save", "");
+    std::string out = get_str_arg(argc, argv, "--save-graph", "");
     std::string fmt = get_str_arg(argc, argv, "--format", "edges");
 
     // clang-format off

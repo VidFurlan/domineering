@@ -34,8 +34,8 @@ class DomineeringRunner(QWidget):
         exe_layout.addWidget(self.exe_btn)
 
         # Args
-        self.args_input = QLineEdit("--w 5 --h 5 --runs 1 --save output.json --format json")
-        self.args_input.setPlaceholderText("--w 4 --h 4 --runs 1 --save output.json --format json")
+        self.args_input = QLineEdit("--w 3 --h 3 --runs 1 --save-graph graph.json --format json")
+        self.args_input.setPlaceholderText("--w 3 --h 3 --runs 1 --save-graph graph.json --format json")
         self.timout_input = QLineEdit("0")
         self.timout_input.setPlaceholderText("0 = no timeout")
         self.runs_input = QSpinBox()

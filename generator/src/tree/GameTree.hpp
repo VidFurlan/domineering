@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <fstream>
 #include <iostream>
+#include <nlohmann/json.hpp>
 #include <sstream>
 #include <stdexcept>
 #include <unordered_map>
@@ -95,35 +96,7 @@ inline const void GameTree<T>::saveToFileEdgeList(const std::string& filename) c
 }
 
 template <Bitboard T>
-static void write_json_string(std::ostream& os, const std::string& s) {
-    os << '"';
-    for (char c : s) {
-        switch (c) {
-            case '"':
-                os << "\\\"";
-                break;
-            case '\\':
-                os << "\\\\";
-                break;
-            case '\n':
-                os << "\\n";
-                break;
-            case '\r':
-                os << "\\r";
-                break;
-            case '\t':
-                os << "\\t";
-                break;
-            default:
-                os << c;
-                break;
-        }
-    }
-    os << '"';
-}
-
-template <Bitboard T>
-static std::string to_hex_string(T x) {
+static std::string toHexString(T x) {
     std::ostringstream ss;
     ss << "0x" << std::hex << std::uppercase << (uint64_t)x;
     return ss.str();
@@ -131,36 +104,38 @@ static std::string to_hex_string(T x) {
 
 template <Bitboard T>
 inline const void GameTree<T>::saveToFileJson(const std::string& filename) const {
+    using nlohmann::json;
+
+    json root;
+    root["nodes"] = json::array();
+    root["edges"] = json::array();
+
+    for (size_t i = 0; i < m_nodes.size(); ++i) {
+        const auto& node = m_nodes[i];
+
+        root["nodes"].push_back({
+            {"id", i},
+            {"state", toHexString(node.state)}, // string
+            {"color", node.color}
+        });
+    }
+
+    for (size_t u = 0; u < m_nodes.size(); ++u) {
+        for (uint32_t v : m_nodes[u].getChildren()) {
+            root["edges"].push_back({
+                {"u", u},
+                {"v", v}
+            });
+        }
+    }
+
     std::ofstream file(filename);
     if (!file.is_open()) {
         throw std::runtime_error("Failed to save GameTree to file " + filename);
     }
 
-    file << "{\n";
-    file << "  \"nodes\": [\n";
-
-    for (size_t i = 0; i < m_nodes.size(); ++i) {
-        const auto& node = m_nodes[i];
-        file << "    {\"id\": " << i
-             << ", \"state\": ";
-        write_json_string<T>(file, to_hex_string(node.state));
-        file << ", \"color\": " << node.color << "}";
-
-        if (i + 1 < m_nodes.size()) file << ",";
-        file << "\n";
+    file << root.dump(2) << '\n';
+    if (!file) {
+        throw std::runtime_error("Failed while writing GameTree to file " + filename);
     }
-
-    file << "  ],\n";
-    file << "  \"edges\": [\n";
-
-    bool first = true;
-    for (size_t u = 0; u < m_nodes.size(); ++u) {
-        for (uint32_t v : m_nodes[u].getChildren()) {
-            if (!first) file << ",\n";
-            first = false;
-            file << "    {\"u\": " << u << ", \"v\": " << v << "}";
-        }
-    }
-    file << "\n  ]\n";
-    file << "}\n";
 }

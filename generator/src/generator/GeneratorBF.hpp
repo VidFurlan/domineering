@@ -1,16 +1,14 @@
 #pragma once
 
 #include <cstdint>
-#include <iostream>
 #include <stack>
-#include <tuple>
 #include "generator/AGenerator.hpp"
 
 template <Bitboard T, std::uint8_t W, std::uint8_t H>
-class GeneratorMinimax : public AGenerator<T, W, H> {
+class GeneratorBruteForce : public AGenerator<T, W, H> {
 	public:
-		GeneratorMinimax() = default;
-		~GeneratorMinimax() = default;
+		GeneratorBruteForce() = default;
+		~GeneratorBruteForce() = default;
 
 		void run();
 
@@ -19,12 +17,12 @@ class GeneratorMinimax : public AGenerator<T, W, H> {
 };
 
 template <Bitboard T, std::uint8_t W, std::uint8_t H>
-inline void GeneratorMinimax<T, W, H>::dfsGetAnswer(uint32_t idx, uint32_t turn) {
+inline void GeneratorBruteForce<T, W, H>::dfsGetAnswer(uint32_t idx, uint32_t turn) {
 		if (this->m_tree.getNodeByIdx(idx).color != -1) return;
 
 		bool win = false;
 		for (auto child_idx : this->m_tree.getNodeByIdx(idx).getChildren()) {
-			dfsGetAnswer(child_idx, turn ^ 1);
+			dfs(child_idx, turn ^ 1);
 			if (this->m_tree.getNodeByIdx(child_idx).color == turn) {
 				win = true;
 				break;
@@ -35,19 +33,12 @@ inline void GeneratorMinimax<T, W, H>::dfsGetAnswer(uint32_t idx, uint32_t turn)
 }
 
 template <Bitboard T, std::uint8_t W, std::uint8_t H>
-inline void GeneratorMinimax<T, W, H>::run() {
+inline void GeneratorBruteForce<T, W, H>::run() {
 	std::stack<std::tuple<T, int32_t, uint32_t>> stk;
 	stk.push({this->m_initial, -1, 0});
 	while (!stk.empty()) {
 		auto [current, parent, turn] = stk.top();
 		stk.pop();
-
-
-		if (this->m_tree.findNode(current) != -1) {
-			uint32_t idx = this->m_tree.findNode(current);
-			this->m_tree.getNodeByIdx(parent).addChild(idx);
-			continue;
-		}
 
 		this->m_tree.addNode(TreeNode<T>(current));
 		uint32_t idx = this->m_tree.size() - 1;
@@ -88,7 +79,7 @@ inline void GeneratorMinimax<T, W, H>::run() {
 		}
 	}
 
-	dfsGetAnswer(this->m_initial, 0);
+	dfs(this->m_initial, 0);
 
 	std::cout << "Wins: " << (this->m_tree.getNodeByIdx(0).color == 0 ? "First" : "Second") << " player\n";
 }
