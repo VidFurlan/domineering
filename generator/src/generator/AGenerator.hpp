@@ -7,6 +7,7 @@
 #include <chrono>
 #include "tree/GameTree.hpp"
 #include "generator/Bitboard.hpp"
+#include "generator/Zobrist.hpp"
 
 #define GET_IDX(W, i, j) ((i) * (W) + (j))
 
@@ -22,7 +23,7 @@ class AGenerator {
 	public:
 		AGenerator(const T& initial = 0) : m_initial(initial) {}
 		virtual void run() = 0;
-void benchmark(uint32_t iterations = 1) {
+		void benchmark(uint32_t iterations = 1) {
 			uint64_t total_ms = 0;
 			for (uint32_t i = 0; i < iterations; i++) {
 				m_tree.clear();
@@ -54,6 +55,7 @@ void benchmark(uint32_t iterations = 1) {
 	protected:
 		static constexpr uint32_t c_size = W * H;
 		GameTree<T> m_tree;
+		Zobrist<T, W, H> zobrist;
 		const T m_initial;
 
 		T merge(const T& a, const T& b);
@@ -108,9 +110,9 @@ inline std::vector<T> AGenerator<T, W, H>::split(const T& a) {
 		}
 	} 
 
-	std::array<T, c_size> component;
-	for (uint32_t i = 0; i < W; i++) {
-		for (uint32_t j = 0; j < H; j++) {
+	std::array<T, c_size> component{};
+	for (uint32_t i = 0; i < H; i++) {
+		for (uint32_t j = 0; j < W; j++) {
 			component[find_parent(find_parent, GET_IDX(W, i, j))] |= GET_BIT(a, W, i, j) << GET_IDX(W, i, j);
 		}
 	}

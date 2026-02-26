@@ -9,7 +9,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Build =======================================================================
-
 include(FetchContent)
 
 FetchContent_Declare(
@@ -32,6 +31,30 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 	nlohmann_json::nlohmann_json
 )
 
+# Speeeed =====================================================================
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_ok OUTPUT ipo_err)
+if(ipo_ok)
+  set_property(TARGET ${PROJECT_NAME} PROPERTY INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+endif()
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(${PROJECT_NAME} PRIVATE
+    $<$<CONFIG:Release>:-O3 -DNDEBUG -march=native -fomit-frame-pointer>
+    $<$<CONFIG:RelWithDebInfo>:-O3 -g -DNDEBUG -march=native -fomit-frame-pointer>
+  )
+
+  target_link_options(${PROJECT_NAME} PRIVATE
+    $<$<CONFIG:Release>:-flto>
+    $<$<CONFIG:RelWithDebInfo>:-flto>
+  )
+endif()
+
+
 # LSP support =================================================================
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 add_custom_target(copy_compile_commands ALL
@@ -48,3 +71,8 @@ if(EXISTS "${LOC_PATH}")
 	message(FATAL_ERROR "You cannot build in a source directory (or any directory with "
 		"CMakeLists.txt file). Please make a build subdirectory.")
 endif()
+
+# Build:
+#	cmake -S .. -B build -DCMAKE_BUILD_TYPE=Release
+#	cmake --build build -j
+
