@@ -10,6 +10,7 @@
 #include "generator/GeneratorMinimaxBitboard.hpp"
 #include "generator/GeneratorMinimaxBitboardMoveOrdering.hpp"
 #include "generator/GeneratorMinimaxTT.hpp"
+#include "generator/GeneratorMinimaxTTPopcount.hpp"
 
 static int get_int_arg(int argc, char** argv, const std::string& key, int def) {
 	for (int i = 1; i + 1 < argc; ++i) {
@@ -38,7 +39,7 @@ using BB = std::conditional_t<(W * H <= 32), uint32_t, uint64_t>;
 
 template <uint8_t W, uint8_t H>
 int run_bench_auto(int runs, const std::string& out, const std::string& fmt) {
-	GeneratorMinimaxBitboard<BB<W, H>, W, H> gen;
+	GeneratorMinimaxTTPopcount<BB<W, H>, W, H> gen;
 	gen.benchmark(runs);
 
 	if (!out.empty()) {

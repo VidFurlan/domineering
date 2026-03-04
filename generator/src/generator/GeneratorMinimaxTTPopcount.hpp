@@ -7,7 +7,7 @@
 #include "generator/AGenerator.hpp"
 
 template <Bitboard T, std::uint8_t W, std::uint8_t H>
-class GeneratorMinimaxTT : public AGenerator<T, W, H> {
+class GeneratorMinimaxTTPopcount : public AGenerator<T, W, H> {
 	struct State {
 		T board;
 		uint8_t val; // 0-unchecked, 1-lose, 2-win
@@ -15,8 +15,8 @@ class GeneratorMinimaxTT : public AGenerator<T, W, H> {
 	using AGenerator<T,W,H>::zobrist;
 
 	public:
-		GeneratorMinimaxTT() = default;
-		~GeneratorMinimaxTT() = default;
+		GeneratorMinimaxTTPopcount() = default;
+		~GeneratorMinimaxTTPopcount() = default;
 
 		void run() {
 			TT0.resize(TT_SIZE);
@@ -42,7 +42,7 @@ class GeneratorMinimaxTT : public AGenerator<T, W, H> {
 		uint64_t hits = 0;
 
 		inline bool shouldReplace(T oldb, T newb) {
-			return true;
+			return __builtin_popcountll(oldb) > __builtin_popcountll(newb);
 		}
 
 		inline bool getMemo(T board, uint64_t hash, uint8_t turn, bool &out) {

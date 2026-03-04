@@ -111,7 +111,7 @@ class GeneratorMinimaxBitboard : public AGenerator<T, W, H> {
 					anchors &= anchors - 1;
 					T a = T{1} << b;
 					T next = current | a | (a << 1);
-					if (!solve(next, 1)) {
+					if (!solve(next, 0)) {
 						setMemo(current, turn, true);
 						return true;
 					}
