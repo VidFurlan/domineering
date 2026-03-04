@@ -81,7 +81,7 @@ class GeneratorMinimaxMoveOrdering : public AGenerator<T, W, H> {
 					}
 				}
 			}
-				
+
 			if (moves.empty()) {
 				setMemo(current, turn, false);
 				return false;
@@ -94,9 +94,9 @@ class GeneratorMinimaxMoveOrdering : public AGenerator<T, W, H> {
 				return std::abs(r - centR) + std::abs(c-centC);
 			};
 			std::sort(moves.begin(), moves.end(), [&](const Move &a, const Move &b) {
-				return sortVal(a.anchor) < sortVal(b.anchor);
-			});
-			
+					return sortVal(a.anchor) < sortVal(b.anchor);
+					});
+
 			for (const Move& mv : moves) {
 				T next = current | mv.mask;
 				if (!solve(next, turn^1)) {

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 
+#include "generator/AGenerator.hpp"
 #include "generator/GeneratorMinimaxBruteforce.hpp"
 #include "generator/GeneratorMinimaxMemo.hpp"
 #include "generator/GeneratorMinimaxMemoNoGraph.hpp"
@@ -10,7 +11,12 @@
 #include "generator/GeneratorMinimaxBitboard.hpp"
 #include "generator/GeneratorMinimaxBitboardMoveOrdering.hpp"
 #include "generator/GeneratorMinimaxTT.hpp"
-#include "generator/GeneratorMinimaxTTPopcount.hpp"
+#include "generator/GeneratorMinimaxTTMoveOrdering.hpp"
+#include "generator/GeneratorMinimaxTTMoveOrderingNoComp.hpp"
+#include "generator/GeneratorMinimaxTTMoveOrderingDualTT.hpp"
+
+#include "generator/replace_policies/AlwaysReplace.hpp"
+#include "generator/replace_policies/DepthReplace.hpp"
 
 static int get_int_arg(int argc, char** argv, const std::string& key, int def) {
 	for (int i = 1; i + 1 < argc; ++i) {
@@ -38,26 +44,55 @@ template <uint8_t W, uint8_t H>
 using BB = std::conditional_t<(W * H <= 32), uint32_t, uint64_t>;
 
 template <uint8_t W, uint8_t H>
-int run_bench_auto(int runs, const std::string& out, const std::string& fmt) {
-	GeneratorMinimaxTTPopcount<BB<W, H>, W, H> gen;
-	gen.benchmark(runs);
+int run_bench_auto(int runs, const std::string& out, const std::string& fmt, std::string algo) {
+	AGenerator<BB<W, H>, W, H> *gen;
+	if (algo == "bf") gen = new GeneratorMinimaxBruteforce<BB<W, H>, W, H>(); 
+	else if (algo == "memo") gen = new GeneratorMinimaxMemo<BB<W, H>, W, H>(); 
+	else if (algo == "memo-nograph") gen = new GeneratorMinimaxMemoNoGraph<BB<W, H>, W, H>(); 
+	else if (algo == "mo") gen = new GeneratorMinimaxMoveOrdering<BB<W, H>, W, H>(); 
+	else if (algo == "bb") gen = new GeneratorMinimaxBitboard<BB<W, H>, W, H>(); 
+	else if (algo == "bbmo") gen = new GeneratorMinimaxBitboardMoveOrdering<BB<W, H>, W, H>(); 
+	else if (algo == "tt") gen = new GeneratorMinimaxTT<BB<W, H>, W, H>(); 
+	else if (algo == "ttmo") gen = new GeneratorMinimaxTTMoveOrdering<BB<W, H>, W, H>(); 
+	else if (algo == "ttmonc") gen = new GeneratorMinimaxTTMoveOrderingNoComp<BB<W, H>, W, H>(); 
+	else if (algo == "ttmodd") gen = new GeneratorMinimaxTTMoveOrderingDualTT<BB<W, H>, W, H>();
+	else gen = new GeneratorMinimaxTTMoveOrderingNoComp<BB<W, H>, W, H>();
+	gen->benchmark(runs);
 
 	if (!out.empty()) {
-		gen.saveTree(out, fmt);
+		gen->saveTree(out, fmt);
 	}
 	return 0;
 }
 
 int main(int argc, char** argv) {
+	bool help = has_flag(argc, argv, "--help");
+	if (help) {
+		std::cout << "Usage: " << argv[0] << " [--algo <algo>] [--w <width>] [--h <height>] [--runs <iterations>] [--save-graph <path>] [--format <edges|json>]\n";
+		std::cout << "--algo: \n";
+		std::cout << "\tbf - brute-force\n";
+		std::cout << "\tmemo - memoization\n";
+		std::cout << "\tmemo-nograph - memoization without graph construction\n";
+		std::cout << "\tmo - memoization with move ordering\n";
+		std::cout << "\tbb - bitboard\n";
+		std::cout << "\tbbmo - bitboard with move ordering\n";
+		std::cout << "\ttt - transposition table\n";
+		std::cout << "\tttmo - transposition table with move ordering\n";
+		std::cout << "\tttmonc - transposition table with move ordering, no compression\n";
+		std::cout << "\tttmodd - transposition table with move ordering, dual TT\n";
+		std::cout << std::flush;
+		return 0;
+	}
 	int w = get_int_arg(argc, argv, "--w", 5);
 	int h = get_int_arg(argc, argv, "--h", 5);
 	int runs = get_int_arg(argc, argv, "--runs", 1);
 
 	std::string out = get_str_arg(argc, argv, "--save-graph", "");
 	std::string fmt = get_str_arg(argc, argv, "--format", "edges");
+	std::string algo = get_str_arg(argc, argv, "--algo", "ttmonc");
 
 	// clang-format off
-#define CASE(W,H) if (w == (W) && h == (H)) return run_bench_auto<(W),(H)>(runs, out, fmt);
+#define CASE(W,H) if (w == (W) && h == (H)) return run_bench_auto<(W),(H)>(runs, out, fmt, algo);
 	CASE(1,1) CASE(1,2) CASE(1,3) CASE(1,4) CASE(1,5) CASE(1,6) CASE(1,7)
 		CASE(2,1) CASE(2,2) CASE(2,3) CASE(2,4) CASE(2,5) CASE(2,6) CASE(2,7)
 		CASE(3,1) CASE(3,2) CASE(3,3) CASE(3,4) CASE(3,5) CASE(3,6) CASE(3,7)

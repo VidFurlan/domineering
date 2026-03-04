@@ -45,7 +45,6 @@ inline void GeneratorMinimaxBruteforce<T, W, H>::run() {
 		stk.pop();
 
 		count++;
-		if (count%10000000 == 0) std::cout << "States:" << count << std::endl;
 
 		this->m_tree.addNode(TreeNode<T>(current));
 		uint32_t idx = this->m_tree.size() - 1;

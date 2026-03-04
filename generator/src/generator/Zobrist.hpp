@@ -1,12 +1,13 @@
 #pragma once
 
 #include <cstdint>
+#include <array>
 #include "generator/Bitboard.hpp"
 
 template <Bitboard T, std::uint8_t W, std::uint8_t H>
 class Zobrist {
 	public:
-		static constexpr int POWER = 22;
+		static constexpr int POWER = 26;
 		static constexpr int STATES = 1<<POWER;
 	private:
 		std::array<uint64_t, W*H> bitValue;
@@ -17,7 +18,7 @@ class Zobrist {
 			return z ^ (z >> 31);
 		}
 	public:
-		Zobrist(uint64_t seed = 42) {
+		Zobrist(uint64_t seed = 42424200) {
 			for (int i = 0; i < W*H; i++) {
 				bitValue[i] = splitmix64(seed);
 			}

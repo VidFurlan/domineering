@@ -122,7 +122,8 @@ class GeneratorMinimaxBitboardMoveOrdering : public AGenerator<T, W, H> {
 						return true;
 					}
 				}
-			} else {
+			} 
+			else {
 				T anchors = empty & ~LAST_COL & (empty >> 1);
 
 				if (!anchors) {

@@ -5,9 +5,11 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include "generator/utils/SymetryCompressor.hpp"
 #include "tree/GameTree.hpp"
 #include "generator/Bitboard.hpp"
 #include "generator/Zobrist.hpp"
+#include "generator/utils/SymetryCompressor.hpp"
 
 #define GET_IDX(W, i, j) ((i) * (W) + (j))
 
@@ -56,6 +58,7 @@ class AGenerator {
 		static constexpr uint32_t c_size = W * H;
 		GameTree<T> m_tree;
 		Zobrist<T, W, H> zobrist;
+		SymmetryCompressor<T, W, H> compressor;
 		const T m_initial;
 
 		T merge(const T& a, const T& b);
