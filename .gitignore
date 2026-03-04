@@ -1,1 +1,3 @@
-*.txt
+runner/*.txt
+runner/*.json
+generator/build/
