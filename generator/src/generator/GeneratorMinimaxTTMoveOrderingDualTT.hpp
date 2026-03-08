@@ -5,7 +5,7 @@
 #include "generator/GeneratorMinimaxTT.hpp"
 #include "generator/utils/BitOps.hpp"
 
-template <Bitboard T, std::uint8_t W, std::uint8_t H, class ReplacePolicy = AlwaysReplace> class GeneratorMinimaxTTMoveOrderingNoComp : public GeneratorMinimaxTT<T, W, H, ReplacePolicy> {
+template <Bitboard T, std::uint8_t W, std::uint8_t H, class ReplacePolicy = AlwaysReplace> class GeneratorMinimaxTTMoveOrderingDualTT : public GeneratorMinimaxTT<T, W, H, ReplacePolicy> {
 	using Base = GeneratorMinimaxTT<T, W, H, ReplacePolicy>;
 	using typename Base::State;
 	using Base::zobrist;
