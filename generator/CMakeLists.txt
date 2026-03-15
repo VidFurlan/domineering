@@ -10,6 +10,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Build =======================================================================
 include(FetchContent)
+find_package(OpenMP REQUIRED)
 
 FetchContent_Declare(
 	nlohmann_json
@@ -29,6 +30,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE 
 	nlohmann_json::nlohmann_json
+	OpenMP::OpenMP_CXX
 )
 
 # Speeeed =====================================================================

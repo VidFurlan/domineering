@@ -6,11 +6,13 @@
 #include "generator/utils/BitOps.hpp"
 
 template <Bitboard T, std::uint8_t W, std::uint8_t H, class ReplacePolicy = AlwaysReplace> class GeneratorMinimaxTTMoveOrderingNoComp : public GeneratorMinimaxTT<T, W, H, ReplacePolicy> {
+	public:
 	using Base = GeneratorMinimaxTT<T, W, H, ReplacePolicy>;
 	using typename Base::State;
 	using Base::zobrist;
 	using Base::compressor;
 
+	private:
 	static inline int distToCenter(int b) {
 		int r = b / W;
 		int c = b % W;
@@ -24,9 +26,9 @@ template <Bitboard T, std::uint8_t W, std::uint8_t H, class ReplacePolicy = Alwa
 	bool solveOrdered(State s, uint64_t hash) {
 		this->nodes++;
 
-		if ((this->nodes & ((1ll<<26)-1)) == ((1ll<<26)-1)) {
-			std::cout << "Nodes: " << this->nodes << std::endl;
-		}
+		//if ((this->nodes & ((1ll<<26)-1)) == ((1ll<<26)-1)) {
+		//	std::cout << "Nodes: " << this->nodes << std::endl;
+		//}
 
 		bool cached;
 		if (this->getMemo(s, hash, cached)) return cached;
@@ -111,6 +113,20 @@ template <Bitboard T, std::uint8_t W, std::uint8_t H, class ReplacePolicy = Alwa
 	}
 
 	public:
+	void reset_tables() {
+		this->TT0.assign(Base::TT_SIZE, State{});
+		this->TT1.assign(Base::TT_SIZE, State{});
+		this->nodes = 0;
+		this->hits  = 0;
+	}
+
+	bool solve_subtree(State s, uint64_t hash) {
+		return solveOrdered(s, hash);
+	}
+
+	uint64_t get_nodes() const { return this->nodes; }
+	uint64_t get_hits()  const { return this->hits; }
+
 	void run() override {
 		this->TT0.assign(Base::TT_SIZE, State{});
 		this->TT1.assign(Base::TT_SIZE, State{});

@@ -14,6 +14,7 @@
 #include "generator/GeneratorMinimaxTTMoveOrdering.hpp"
 #include "generator/GeneratorMinimaxTTMoveOrderingNoComp.hpp"
 #include "generator/GeneratorMinimaxTTMoveOrderingDualTT.hpp"
+#include "generator/GeneratorMinimaxRootParallel.hpp"
 
 #include "generator/replace_policies/AlwaysReplace.hpp"
 #include "generator/replace_policies/DepthReplace.hpp"
@@ -44,7 +45,7 @@ template <uint8_t W, uint8_t H>
 using BB = std::conditional_t<(W * H <= 32), uint32_t, uint64_t>;
 
 template <uint8_t W, uint8_t H>
-int run_bench_auto(int runs, const std::string& out, const std::string& fmt, std::string algo) {
+int run_bench_auto(int runs, const std::string& out, const std::string& fmt, std::string algo, int threads = 1) {
 	AGenerator<BB<W, H>, W, H> *gen;
 	if (algo == "bf") gen = new GeneratorMinimaxBruteforce<BB<W, H>, W, H>(); 
 	else if (algo == "memo") gen = new GeneratorMinimaxMemo<BB<W, H>, W, H>(); 
@@ -56,6 +57,7 @@ int run_bench_auto(int runs, const std::string& out, const std::string& fmt, std
 	else if (algo == "ttmo") gen = new GeneratorMinimaxTTMoveOrdering<BB<W, H>, W, H>(); 
 	else if (algo == "ttmonc") gen = new GeneratorMinimaxTTMoveOrderingNoComp<BB<W, H>, W, H>(); 
 	else if (algo == "ttmodd") gen = new GeneratorMinimaxTTMoveOrderingDualTT<BB<W, H>, W, H>();
+	else if (algo == "ttmorp") gen = new GeneratorMinimaxRootParallel<BB<W, H>, W, H, GeneratorMinimaxTTMoveOrderingNoComp<BB<W, H>, W, H>>(threads);
 	else gen = new GeneratorMinimaxTTMoveOrderingNoComp<BB<W, H>, W, H>();
 	gen->benchmark(runs);
 
@@ -68,7 +70,7 @@ int run_bench_auto(int runs, const std::string& out, const std::string& fmt, std
 int main(int argc, char** argv) {
 	bool help = has_flag(argc, argv, "--help");
 	if (help) {
-		std::cout << "Usage: " << argv[0] << " [--algo <algo>] [--w <width>] [--h <height>] [--runs <iterations>] [--save-graph <path>] [--format <edges|json>]\n";
+		std::cout << "Usage: " << argv[0] << " [--algo <algo>] [--w <width>] [--h <height>] [--runs <iterations>] [--save-graph <path>] [--format <edges|json>] [--threads <number of threads>]\n";
 		std::cout << "--algo: \n";
 		std::cout << "\tbf - brute-force\n";
 		std::cout << "\tmemo - memoization\n";
@@ -80,19 +82,21 @@ int main(int argc, char** argv) {
 		std::cout << "\tttmo - transposition table with move ordering\n";
 		std::cout << "\tttmonc - transposition table with move ordering, no compression\n";
 		std::cout << "\tttmodd - transposition table with move ordering, dual TT\n";
+		std::cout << "\tttmorp - root-parallel transposition table with move ordering, no compression\n";
 		std::cout << std::flush;
 		return 0;
 	}
 	int w = get_int_arg(argc, argv, "--w", 5);
 	int h = get_int_arg(argc, argv, "--h", 5);
 	int runs = get_int_arg(argc, argv, "--runs", 1);
+	int threads = get_int_arg(argc, argv, "--threads", 1);
 
 	std::string out = get_str_arg(argc, argv, "--save-graph", "");
 	std::string fmt = get_str_arg(argc, argv, "--format", "edges");
 	std::string algo = get_str_arg(argc, argv, "--algo", "ttmonc");
 
 	// clang-format off
-#define CASE(W,H) if (w == (W) && h == (H)) return run_bench_auto<(W),(H)>(runs, out, fmt, algo);
+#define CASE(W,H) if (w == (W) && h == (H)) return run_bench_auto<(W),(H)>(runs, out, fmt, algo, threads);
 	CASE(1,1) CASE(1,2) CASE(1,3) CASE(1,4) CASE(1,5) CASE(1,6) CASE(1,7)
 		CASE(2,1) CASE(2,2) CASE(2,3) CASE(2,4) CASE(2,5) CASE(2,6) CASE(2,7)
 		CASE(3,1) CASE(3,2) CASE(3,3) CASE(3,4) CASE(3,5) CASE(3,6) CASE(3,7)

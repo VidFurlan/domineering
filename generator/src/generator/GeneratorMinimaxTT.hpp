@@ -16,11 +16,11 @@ class GeneratorMinimaxTT : public AGenerator<T, W, H> {
 			uint32_t depth = 0; // moves from root
 		};
 
-	protected:
 		using AGenerator<T, W, H>::zobrist;
 		using AGenerator<T, W, H>::compressor;
 		ReplacePolicy replacePolicy{};
 
+	protected:
 		static constexpr uint64_t TT_SIZE = Zobrist<T, W, H>::STATES;
 
 		std::vector<State> TT0, TT1;
