@@ -15,27 +15,36 @@
 #include "generator/GeneratorMinimaxTTMoveOrderingNoComp.hpp"
 #include "generator/GeneratorMinimaxTTMoveOrderingDualTT.hpp"
 #include "generator/GeneratorMinimaxRootParallel.hpp"
+#include "generator/DemoInteractor.hpp"
 
 #include "generator/replace_policies/AlwaysReplace.hpp"
 #include "generator/replace_policies/DepthReplace.hpp"
 
 static int get_int_arg(int argc, char** argv, const std::string& key, int def) {
-	for (int i = 1; i + 1 < argc; ++i) {
+	for (int i = 1; i + 1 < argc; i++) {
 		if (argv[i] == key)
 			return std::atoi(argv[i + 1]);
 	}
 	return def;
 }
 
+static uint64_t get_u64_arg(int argc, char** argv, const std::string& key, uint64_t def) {
+	for (int i = 1; i + 1 < argc; i++) {
+		if (argv[i] == key)
+			return std::strtoull(argv[i + 1], nullptr, 0);
+	}
+	return def;
+}
+
 static std::string get_str_arg(int argc, char** argv, const std::string& key, const std::string& def = "") {
-	for (int i = 1; i + 1 < argc; ++i) {
+	for (int i = 1; i + 1 < argc; i++) {
 		if (argv[i] == key) return argv[i + 1];
 	}
 	return def;
 }
 
 static bool has_flag(int argc, char** argv, const std::string& key) {
-	for (int i = 1; i < argc; ++i) {
+	for (int i = 1; i < argc; i++) {
 		if (argv[i] == key) return true;
 	}
 	return false;
@@ -95,18 +104,47 @@ int main(int argc, char** argv) {
 	std::string fmt = get_str_arg(argc, argv, "--format", "edges");
 	std::string algo = get_str_arg(argc, argv, "--algo", "ttmonc");
 
+	// for py demo
+	// --board hex board rep
+	bool json = has_flag(argc, argv, "--json");
+	bool want_best_move = has_flag(argc, argv, "--best-move");
+	bool has_board = false;
+	for (int i = 1; i < argc; ++i) {
+		if (std::string(argv[i]) == "--board") {
+			has_board = true;
+			break;
+		}
+	}
+	uint64_t board_arg = get_u64_arg(argc, argv, "--board", 0);
+	int turn = get_int_arg(argc, argv, "--turn", 0);
+	if (has_board) {
+	// clang-format off
+		DEMO_CASE(1,1) DEMO_CASE(1,2) DEMO_CASE(1,3) DEMO_CASE(1,4) DEMO_CASE(1,5) DEMO_CASE(1,6)
+		DEMO_CASE(2,1) DEMO_CASE(2,2) DEMO_CASE(2,3) DEMO_CASE(2,4) DEMO_CASE(2,5) DEMO_CASE(2,6)
+		DEMO_CASE(3,1) DEMO_CASE(3,2) DEMO_CASE(3,3) DEMO_CASE(3,4) DEMO_CASE(3,5) DEMO_CASE(3,6)
+		DEMO_CASE(4,1) DEMO_CASE(4,2) DEMO_CASE(4,3) DEMO_CASE(4,4) DEMO_CASE(4,5) DEMO_CASE(4,6)
+		DEMO_CASE(5,1) DEMO_CASE(5,2) DEMO_CASE(5,3) DEMO_CASE(5,4) DEMO_CASE(5,5) DEMO_CASE(5,6)
+		DEMO_CASE(6,1) DEMO_CASE(6,2) DEMO_CASE(6,3) DEMO_CASE(6,4) DEMO_CASE(6,5) DEMO_CASE(6,6)
+#undef DEMO_CASE
+
+		std::cerr << "Unsupported size " << w << "x" << h << "\n";
+		return 3;
+	}
+	// clang-format on
+
+	// precomp templates for speeed
 	// clang-format off
 #define CASE(W,H) if (w == (W) && h == (H)) return run_bench_auto<(W),(H)>(runs, out, fmt, algo, threads);
 	CASE(1,1) CASE(1,2) CASE(1,3) CASE(1,4) CASE(1,5) CASE(1,6) CASE(1,7)
-		CASE(2,1) CASE(2,2) CASE(2,3) CASE(2,4) CASE(2,5) CASE(2,6) CASE(2,7)
-		CASE(3,1) CASE(3,2) CASE(3,3) CASE(3,4) CASE(3,5) CASE(3,6) CASE(3,7)
-		CASE(4,1) CASE(4,2) CASE(4,3) CASE(4,4) CASE(4,5) CASE(4,6) CASE(4,7)
-		CASE(5,1) CASE(5,2) CASE(5,3) CASE(5,4) CASE(5,5) CASE(5,6) CASE(5,7)
-		CASE(6,1) CASE(6,2) CASE(6,3) CASE(6,4) CASE(6,5) CASE(6,6) CASE(6,7)
-		CASE(7,1) CASE(7,2) CASE(7,3) CASE(7,4) CASE(7,5) CASE(7,6) CASE(7,7)
+	CASE(2,1) CASE(2,2) CASE(2,3) CASE(2,4) CASE(2,5) CASE(2,6) CASE(2,7)
+	CASE(3,1) CASE(3,2) CASE(3,3) CASE(3,4) CASE(3,5) CASE(3,6) CASE(3,7)
+	CASE(4,1) CASE(4,2) CASE(4,3) CASE(4,4) CASE(4,5) CASE(4,6) CASE(4,7)
+	CASE(5,1) CASE(5,2) CASE(5,3) CASE(5,4) CASE(5,5) CASE(5,6) CASE(5,7)
+	CASE(6,1) CASE(6,2) CASE(6,3) CASE(6,4) CASE(6,5) CASE(6,6) CASE(6,7)
+	CASE(7,1) CASE(7,2) CASE(7,3) CASE(7,4) CASE(7,5) CASE(7,6) CASE(7,7)
 #undef CASE
-		// clang-format on
+	// clang-format on
 
-		std::cerr << "Unsupported size " << w << "x" << h << "\n";
+	std::cerr << "Unsupported size " << w << "x" << h << "\n";
 	return 3;
 }
