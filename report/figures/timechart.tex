@@ -1,0 +1,63 @@
+\definecolor{c1}{RGB}{227,119,194}  % pink
+\definecolor{c2}{RGB}{140,86,75}    % brown
+\definecolor{c3}{RGB}{44,160,44}    % green
+\definecolor{c4}{RGB}{255,127,14}   % orange
+\definecolor{c5}{RGB}{148,103,189}  % purple
+\definecolor{c6}{RGB}{214,39,40}    % red
+\definecolor{c7}{RGB}{31,119,180}   % blue
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=15.5cm,
+    height=10cm,
+    xlabel={Velikost plošče},
+    ylabel={Čas (ms)},
+    ymode=log,
+    grid=major,
+    legend pos=north west,
+    legend style={
+        font=\footnotesize
+    },
+    tick label style={font=\small},
+    label style={font=\small},
+    xtick={16,20,25,30,36,42,49},
+    xticklabels={4×4,4x5,5×5,5x6,6×6,6x7,7x7},
+    every axis plot/.append style={thick},
+    no markers,
+    legend style={
+        font=\footnotesize,
+        at={(0.5,-0.18)},
+        anchor=north,
+        legend columns=4,
+        column sep=15pt,
+        draw=none
+    }
+]
+
+\addplot[color=c1] table[x=size,y=bf,col sep=comma] {data/time.csv};
+\addlegendentry{Osnovni}
+
+\addplot[color=c2] table[x=size,y=memo,col sep=comma] {data/time.csv};
+\addlegendentry{Memo}
+
+\addplot[color=c3] table[x=size,y=bit,col sep=comma] {data/time.csv};
+\addlegendentry{Bitne operacije}
+
+\addplot[color=c4] table[x=size,y=mo,col sep=comma] {data/time.csv};
+\addlegendentry{Prioritizacija}
+
+\addplot[color=c5] table[x=size,y=bbmo,col sep=comma] {data/time.csv};
+\addlegendentry{Bit. + Prior.}
+
+\addplot[color=c6] table[x=size,y=ttmo,col sep=comma] {data/time.csv};
+\addlegendentry{TT}
+
+\addplot[color=c7] table[x=size,y=sup,col sep=comma] {data/time.csv};
+\addlegendentry{Superrač.}
+
+\end{axis}
+\end{tikzpicture}
+\caption{Primerjava časa izvajanja različnih optimizacij.}
+\end{figure}

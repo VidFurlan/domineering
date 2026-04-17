@@ -1,0 +1,22 @@
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    box/.style={
+        draw,
+        rounded corners,
+        align=center,
+        minimum height=1.6cm,
+        text width=4.4cm
+    },
+    arrow/.style={->, thick}
+]
+
+\node[box] (old) {Trenutna vrednost\\[2pt] $H(s)=z_3 \oplus z_7 \oplus z_{12}$};
+\node[box, right=8mm of old] (move) {Nova poteza\\[2pt] $z_5 \oplus z_9$};
+\node[box, right=8mm of move] (new) {Posodobljena vrednost\\[2pt] $H(s') = H(s) \oplus z_5 \oplus z_9$};
+
+\draw[arrow] (old) -- (move);
+\draw[arrow] (move) -- (new);
+\end{tikzpicture}
+\caption{Inkrementalno posodabljanje Zobristove razprševalne vrednosti.}
+\end{figure}

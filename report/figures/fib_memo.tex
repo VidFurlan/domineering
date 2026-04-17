@@ -1,0 +1,38 @@
+\begin{figure}[H]
+\centering
+\forestset{
+  called/.style={font=\bfseries},
+  repeated/.style={
+    text=gray,
+    edge={->, draw=gray}
+  }
+}
+\begin{forest}
+for tree={edge={->}, minimum size=3mm, s sep=5mm, l=5mm}
+[fib(6), called
+  [fib(5), called
+    [fib(4), called
+      [fib(3), called
+        [fib(2), called[1, called]]
+        [fib(1), called[1, called]]
+      ]
+      [fib(2), repeated
+        [1, repeated]
+      ]
+    ]
+    [fib(3), repeated
+      [fib(2), repeated [1, repeated]]
+      [fib(1), repeated [1, repeated]]
+    ]
+  ]
+  [fib(4), repeated
+    [fib(3), repeated
+      [fib(2), repeated [1, repeated]]
+      [fib(1), repeated [1, repeated]]
+    ]
+    [fib(2), repeated [1, repeated]]
+  ]
+]
+\end{forest}
+\caption{Drevo klicev rekurzivne funkcije $fibonacci(6)$. Odvečni klici funkcije so pobarvani sivo.}
+\end{figure}
