@@ -35,7 +35,7 @@ class DomineeringBoardWidget(QWidget):
         self.w = 6
         self.h = 6
         self.cell_size = 56
-        self.margin = 12
+        self.margin = 16
 
         self.occupied = 0
         self.vertical_bb = 0   # first player
@@ -154,7 +154,6 @@ class DomineeringBoardWidget(QWidget):
         r, c = cell
         mods = event.modifiers()
 
-        # quick-place with modifiers
         if mods & Qt.ShiftModifier:
             self.place(r, c, "H")
             return
@@ -162,7 +161,6 @@ class DomineeringBoardWidget(QWidget):
             self.place(r, c, "V")
             return
 
-        # two-click placement
         if self.selected is None:
             self.selected = (r, c)
             self.update()
@@ -171,7 +169,6 @@ class DomineeringBoardWidget(QWidget):
         r0, c0 = self.selected
         self.selected = None
 
-        # infer direction from adjacency
         if r == r0 and abs(c - c0) == 1:
             cc = min(c, c0)
             self.place(r0, cc, "H")
@@ -185,18 +182,18 @@ class DomineeringBoardWidget(QWidget):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setRenderHint(QPainter.Antialiasing, False)
 
-        painter.fillRect(self.rect(), QColor(22, 22, 26))
+        painter.fillRect(self.rect(), self.palette().window())
 
         board_x = self.margin
         board_y = self.margin
         board_w = self.w * self.cell_size
         board_h = self.h * self.cell_size
 
-        painter.setBrush(QBrush(QColor(38, 38, 46)))
-        painter.setPen(QPen(QColor(70, 70, 80), 2))
-        painter.drawRoundedRect(board_x, board_y, board_w, board_h, 10, 10)
+        painter.fillRect(board_x, board_y, board_w, board_h, QColor("#FFFFFF"))
+        painter.setPen(QPen(QColor("#9E9E9E"), 1))
+        painter.drawRect(board_x, board_y, board_w, board_h)
 
         for r in range(self.h):
             for c in range(self.w):
@@ -216,27 +213,24 @@ class DomineeringBoardWidget(QWidget):
                     else:
                         hint_here = (r, c) in [(hm.r, hm.c), (hm.r, hm.c + 1)]
 
+                painter.setPen(QPen(QColor("#E0E0E0"), 1))
+                painter.drawRect(x, y, self.cell_size, self.cell_size)
+
                 if is_v:
-                    painter.setBrush(QBrush(QColor(80, 140, 255)))   # blue
+                    painter.fillRect(x + 1, y + 1, self.cell_size - 1, self.cell_size - 1, QColor("#4A90E2"))
                 elif is_h:
-                    painter.setBrush(QBrush(QColor(230, 90, 90)))    # red
-                else:
-                    painter.setBrush(QBrush(QColor(60, 60, 72)))
+                    painter.fillRect(x + 1, y + 1, self.cell_size - 1, self.cell_size - 1, QColor("#E74C3C"))
 
                 if is_sel:
-                    painter.setPen(QPen(QColor(245, 210, 90), 3))
-                else:
-                    painter.setPen(QPen(QColor(78, 78, 90), 2))
-
-                painter.drawRoundedRect(x + 5, y + 5, self.cell_size - 10, self.cell_size - 10, 10, 10)
+                    painter.setPen(QPen(QColor("#F39C12"), 2))
+                    painter.setBrush(Qt.NoBrush)
+                    painter.drawRect(x + 1, y + 1, self.cell_size - 2, self.cell_size - 2)
 
                 if hint_here and not is_v and not is_h:
-                    painter.setBrush(QBrush(QColor(90, 220, 120, 120)))
-                    painter.setPen(Qt.NoPen)
-                    painter.drawRoundedRect(x + 8, y + 8, self.cell_size - 16, self.cell_size - 16, 10, 10)
+                    painter.fillRect(x + 2, y + 2, self.cell_size - 3, self.cell_size - 3, QColor(46, 204, 113, 120))
 
-        painter.setPen(QPen(QColor(225, 225, 235)))
-        painter.setFont(QFont("Sans", 10, QFont.Bold))
+        painter.setPen(self.palette().text().color())
+        painter.setFont(QFont("Sans", 10))
         turn_txt = "First / Vertical" if self.turn == 0 else "Second / Horizontal"
         painter.drawText(12, self.height() - 8, f"Turn: {turn_txt} | occupied = 0x{self.occupied:x}")
 
@@ -264,7 +258,7 @@ class MainWindow(QMainWindow):
         self.btn_ai = QPushButton("AI Move")
 
         self.status = QLabel("Ready.")
-        self.status.setStyleSheet("color: #d8d8e8; padding: 6px;")
+        self.status.setStyleSheet("padding: 6px;")
 
         self.size_w.valueChanged.connect(self.on_resize)
         self.size_h.valueChanged.connect(self.on_resize)
@@ -276,7 +270,7 @@ class MainWindow(QMainWindow):
 
         self.btn_pick_solver = QPushButton("Pick Generator")
         self.solver_label = QLabel(self.solver_path)
-        self.solver_label.setStyleSheet("color: #c8c8d8; padding: 4px;")
+        self.solver_label.setStyleSheet("padding: 4px; color: #666;")
         self.solver_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.btn_pick_solver.clicked.connect(self.on_pick_solver)
 
@@ -299,6 +293,7 @@ class MainWindow(QMainWindow):
         solver_row.addWidget(self.solver_label, 1)
 
         layout = QVBoxLayout()
+        layout.setContentsMargins(12, 12, 12, 12)
         layout.addLayout(top)
         layout.addLayout(solver_row)
         layout.addWidget(self.board)

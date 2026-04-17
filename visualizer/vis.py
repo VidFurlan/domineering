@@ -74,14 +74,14 @@ if np.ptp(val) == 0:
     val_norm = np.ones_like(val)
 else:
     val_norm = (val - val.min()) / np.ptp(val)
-node_size = (6 + 18 * val_norm).tolist()
+node_size = (10 + 12 * val_norm).tolist()
 
 group = [G.nodes[n]["group"] for n in G.nodes()]
 
 palette = {
-    -1: "#9CA3AF",  # Wins person on turn
-     0: "#EF4444",  # P1 forced
-     1: "#10B981",  # P2 forced
+    -1: "#9CA3AF",  # wins person on turn
+     0: "#B2B2FF",  # P1 forced
+     1: "#FFB2B2",  # P2 forced
 }
 node_color = [palette.get(g, "#60A5FA") for g in group]
 
@@ -101,6 +101,30 @@ for n in G.nodes():
         f"<br>btw: {get_btw(n):.3f}"
     )
 
+arrow_x, arrow_y, arrow_z = [], [], []
+arrow_u, arrow_v, arrow_w = [], [], []
+
+for u, v in G.edges():
+    x0, y0, z0 = pos[u]
+    x1, y1, z1 = pos[v]
+
+    dx = x1 - x0
+    dy = y1 - y0
+    dz = z1 - z0
+
+    t = 0.85
+    ax = x0 + dx * t
+    ay = y0 + dy * t
+    az = z0 + dz * t
+
+    arrow_x.append(ax)
+    arrow_y.append(ay)
+    arrow_z.append(az)
+
+    arrow_u.append(dx)
+    arrow_v.append(dy)
+    arrow_w.append(dz)
+
 # Plotly 3d
 fig = go.Figure()
 
@@ -112,6 +136,23 @@ fig.add_trace(go.Scatter3d(
     name="edges"
 ))
 
+fig.add_trace(go.Cone(
+    x=arrow_x,
+    y=arrow_y,
+    z=arrow_z,
+    u=arrow_u,
+    v=arrow_v,
+    w=arrow_w,
+    sizemode="absolute",
+    sizeref=0.06,
+    opacity=0.6,
+    showscale=False,
+    anchor="tip",
+    colorscale=[[0, "black"], [1, "black"]],
+    hoverinfo="skip",
+    name="arrows"
+))
+
 fig.add_trace(go.Scatter3d(
     x=node_x, y=node_y, z=node_z,
     mode="markers",
@@ -121,13 +162,15 @@ fig.add_trace(go.Scatter3d(
 ))
 
 fig.update_layout(
-    template="plotly_dark",
+    template="plotly_white",
     showlegend=False,
     scene=dict(
         xaxis=dict(visible=False),
         yaxis=dict(visible=False),
-        zaxis=dict(visible=False)
+        zaxis=dict(visible=False),
+	bgcolor="white"
     ),
+    paper_bgcolor="white",
     margin=dict(l=0, r=0, t=0, b=0)
 )
 
