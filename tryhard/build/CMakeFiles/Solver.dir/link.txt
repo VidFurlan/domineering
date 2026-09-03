@@ -1,0 +1,1 @@
+/usr/sbin/c++ -O3 -DNDEBUG -march=native -fomit-frame-pointer -flto=auto -Wl,--dependency-file=CMakeFiles/Solver.dir/link.d CMakeFiles/Solver.dir/src/main.cpp.o -o Solver

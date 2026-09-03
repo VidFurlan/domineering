@@ -1,0 +1,3 @@
+/home/vid/Dev/domineering/tryhard/build/CMakeFiles/Solver.dir
+/home/vid/Dev/domineering/tryhard/build/CMakeFiles/edit_cache.dir
+/home/vid/Dev/domineering/tryhard/build/CMakeFiles/rebuild_cache.dir
